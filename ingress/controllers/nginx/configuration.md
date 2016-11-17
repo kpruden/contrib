@@ -124,6 +124,7 @@ Please check the [auth](examples/auth/README.md) example
 
 To use an existing service that provides authentication the Ingress rule can be annotated with `ingress.kubernetes.io/auth-url` to indicate the URL where the HTTP request should be sent.
 Additionally is possible to set `ingress.kubernetes.io/auth-method` to specify the HTTP method to use (GET or POST) and `ingress.kubernetes.io/auth-send-body` to true or false (default).
+Finally, set `ingress.kubernetes.io/auth-proxy-headers` to a comma-delimited set of response headers from the authentication service which should be proxied to the target service.
 
 ```
 ingress.kubernetes.io/auth-url:"URL to the authentication service"

@@ -49,16 +49,17 @@ var (
 
 			return true
 		},
-		"buildLocation":       buildLocation,
-		"buildAuthLocation":   buildAuthLocation,
-		"buildProxyPass":      buildProxyPass,
-		"buildRateLimitZones": buildRateLimitZones,
-		"buildRateLimit":      buildRateLimit,
-		"contains":            strings.Contains,
-		"hasPrefix":           strings.HasPrefix,
-		"hasSuffix":           strings.HasSuffix,
-		"toUpper":             strings.ToUpper,
-		"toLower":             strings.ToLower,
+		"buildLocation":           buildLocation,
+		"buildAuthLocation":       buildAuthLocation,
+		"buildAuthProxyHeaderVar": buildAuthProxyHeaderVar,
+		"buildProxyPass":          buildProxyPass,
+		"buildRateLimitZones":     buildRateLimitZones,
+		"buildRateLimit":          buildRateLimit,
+		"contains":                strings.Contains,
+		"hasPrefix":               strings.HasPrefix,
+		"hasSuffix":               strings.HasSuffix,
+		"toUpper":                 strings.ToUpper,
+		"toLower":                 strings.ToLower,
 	}
 )
 
@@ -209,6 +210,15 @@ func buildAuthLocation(input interface{}) string {
 	// avoid locations containing the = char
 	str = strings.Replace(str, "=", "", -1)
 	return fmt.Sprintf("/_external-auth-%v", str)
+}
+
+func buildAuthProxyHeaderVar(input interface{}) string {
+	headerName, ok := input.(string)
+	if !ok {
+		return ""
+	}
+	return strings.ToLower(strings.Replace(headerName, "-", "_", -1))
+
 }
 
 // buildProxyPass produces the proxy pass string, if the ingress has redirects

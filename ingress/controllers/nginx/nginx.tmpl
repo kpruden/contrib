@@ -232,6 +232,11 @@ http {
             {{- if not (empty $authPath) }}
             # this location requires authentication
             auth_request {{ $authPath }};
+            {{- range $header := $location.ExternalAuthURL.ProxyHeaders }}
+            {{ $header_var := buildAuthProxyHeaderVar $header }}
+            auth_request_set $hdr_{{ $header_var }} $upstream_http_{{ $header_var }};
+            proxy_set_header {{ $header }} $hdr_{{ $header_var }};
+            {{ end -}}
             {{ end -}}
 
             {{- if (and $server.SSL $location.Redirect.SSLRedirect) }}

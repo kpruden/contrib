@@ -72,25 +72,30 @@ func TestAnnotations(t *testing.T) {
 	ing.SetAnnotations(data)
 
 	tests := []struct {
-		title    string
-		url      string
-		method   string
-		sendBody bool
-		expErr   bool
+		title        string
+		url          string
+		method       string
+		sendBody     bool
+		proxyHeaders string
+		expHeaders   []string
+		expErr       bool
 	}{
-		{"empty", "", "", false, true},
-		{"no scheme", "bar", "", false, true},
-		{"invalid host", "http://", "", false, true},
-		{"invalid host (multiple dots)", "http://foo..bar.com", "", false, true},
-		{"valid URL", "http://bar.foo.com/external-auth", "", false, false},
-		{"valid URL - send body", "http://foo.com/external-auth", "POST", true, false},
-		{"valid URL - send body", "http://foo.com/external-auth", "GET", true, false},
+		{"empty", "", "", false, "", []string{}, true},
+		{"no scheme", "bar", "", false, "", []string{}, true},
+		{"invalid host", "http://", "", false, "", []string{}, true},
+		{"invalid host (multiple dots)", "http://foo..bar.com", "", false, "", []string{}, true},
+		{"valid URL", "http://bar.foo.com/external-auth", "", false, "", []string{}, false},
+		{"valid URL - send body", "http://foo.com/external-auth", "POST", true, "", []string{}, false},
+		{"valid URL - send body", "http://foo.com/external-auth", "GET", true, "", []string{}, false},
+		{"valid URL - proxy headers", "http://bar.foo.com/external-auth", "", false,
+			"X-Header1, X-Header2", []string{"X-Header1", "X-Header2"}, false},
 	}
 
 	for _, test := range tests {
 		data[authURL] = test.url
 		data[authBody] = fmt.Sprintf("%v", test.sendBody)
 		data[authMethod] = fmt.Sprintf("%v", test.method)
+		data[authHeaders] = fmt.Sprintf("%v", test.proxyHeaders)
 
 		u, err := ParseAnnotations(ing)
 
@@ -109,6 +114,16 @@ func TestAnnotations(t *testing.T) {
 		}
 		if u.SendBody != test.sendBody {
 			t.Errorf("%v: expected \"%v\" but \"%v\" was returned", test.title, test.sendBody, u.SendBody)
+		}
+		if len(u.ProxyHeaders) != len(test.expHeaders) {
+			t.Errorf("%v: expected \"%v\" but \"%v\" was returned", test.title, test.expHeaders, u.ProxyHeaders)
+		} else {
+			for i, h := range u.ProxyHeaders {
+				if h != test.expHeaders[i] {
+					t.Errorf("%v: expected \"%v\" but \"%v\" was returned", test.title, test.expHeaders, u.ProxyHeaders)
+					break
+				}
+			}
 		}
 	}
 }
