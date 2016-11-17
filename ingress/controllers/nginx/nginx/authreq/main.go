@@ -28,10 +28,11 @@ import (
 
 const (
 	// external URL that provides the authentication
-	authURL     = "ingress.kubernetes.io/auth-url"
-	authMethod  = "ingress.kubernetes.io/auth-method"
-	authBody    = "ingress.kubernetes.io/auth-send-body"
-	authHeaders = "ingress.kubernetes.io/auth-proxy-headers"
+	authURL           = "ingress.kubernetes.io/auth-url"
+	authMethod        = "ingress.kubernetes.io/auth-method"
+	authBody          = "ingress.kubernetes.io/auth-send-body"
+	authProxyHeaders  = "ingress.kubernetes.io/auth-proxy-headers"
+	authReturnHeaders = "ingress.kubernetes.io/auth-return-headers"
 )
 
 var (
@@ -42,10 +43,11 @@ var (
 
 // Auth returns external authentication configuration for an Ingress rule
 type Auth struct {
-	URL          string
-	Method       string
-	SendBody     bool
-	ProxyHeaders []string
+	URL           string
+	Method        string
+	SendBody      bool
+	ProxyHeaders  []string
+	ReturnHeaders []string
 }
 
 type ingAnnotations map[string]string
@@ -79,18 +81,32 @@ func (a ingAnnotations) sendBody() bool {
 }
 
 func (a ingAnnotations) proxyHeaders() []string {
-	var headers []string
-	val, ok := a[authHeaders]
+	val, ok := a[authProxyHeaders]
 	if ok {
-		for _, header := range strings.Split(val, ",") {
-			h := strings.TrimSpace(header)
-			if h != "" {
-				headers = append(headers, h)
-			}
+		return splitAndTrim(val)
+	} else {
+		return []string{}
+	}
+}
 
+func (a ingAnnotations) returnHeaders() []string {
+	val, ok := a[authReturnHeaders]
+	if ok {
+		return splitAndTrim(val)
+	} else {
+		return []string{}
+	}
+}
+
+func splitAndTrim(str string) []string {
+	var ret []string
+	for _, header := range strings.Split(str, ",") {
+		h := strings.TrimSpace(header)
+		if h != "" {
+			ret = append(ret, h)
 		}
 	}
-	return headers
+	return ret
 }
 
 var (
@@ -147,12 +163,15 @@ func ParseAnnotations(ing *extensions.Ingress) (Auth, error) {
 
 	sb := ingAnnotations(ing.GetAnnotations()).sendBody()
 
-	headers := ingAnnotations(ing.GetAnnotations()).proxyHeaders()
+	proxyHeaders := ingAnnotations(ing.GetAnnotations()).proxyHeaders()
+
+	returnHeaders := ingAnnotations(ing.GetAnnotations()).returnHeaders()
 
 	return Auth{
-		URL:          str,
-		Method:       m,
-		SendBody:     sb,
-		ProxyHeaders: headers,
+		URL:           str,
+		Method:        m,
+		SendBody:      sb,
+		ProxyHeaders:  proxyHeaders,
+		ReturnHeaders: returnHeaders,
 	}, nil
 }

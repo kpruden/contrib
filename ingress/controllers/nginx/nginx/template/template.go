@@ -49,17 +49,17 @@ var (
 
 			return true
 		},
-		"buildLocation":           buildLocation,
-		"buildAuthLocation":       buildAuthLocation,
-		"buildAuthProxyHeaderVar": buildAuthProxyHeaderVar,
-		"buildProxyPass":          buildProxyPass,
-		"buildRateLimitZones":     buildRateLimitZones,
-		"buildRateLimit":          buildRateLimit,
-		"contains":                strings.Contains,
-		"hasPrefix":               strings.HasPrefix,
-		"hasSuffix":               strings.HasSuffix,
-		"toUpper":                 strings.ToUpper,
-		"toLower":                 strings.ToLower,
+		"buildLocation":       buildLocation,
+		"buildAuthLocation":   buildAuthLocation,
+		"buildAuthHeaderVar":  buildAuthHeaderVar,
+		"buildProxyPass":      buildProxyPass,
+		"buildRateLimitZones": buildRateLimitZones,
+		"buildRateLimit":      buildRateLimit,
+		"contains":            strings.Contains,
+		"hasPrefix":           strings.HasPrefix,
+		"hasSuffix":           strings.HasSuffix,
+		"toUpper":             strings.ToUpper,
+		"toLower":             strings.ToLower,
 	}
 )
 
@@ -212,7 +212,7 @@ func buildAuthLocation(input interface{}) string {
 	return fmt.Sprintf("/_external-auth-%v", str)
 }
 
-func buildAuthProxyHeaderVar(input interface{}) string {
+func buildAuthHeaderVar(input interface{}) string {
 	headerName, ok := input.(string)
 	if !ok {
 		return ""

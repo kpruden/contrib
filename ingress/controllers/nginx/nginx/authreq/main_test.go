@@ -95,7 +95,7 @@ func TestAnnotations(t *testing.T) {
 		data[authURL] = test.url
 		data[authBody] = fmt.Sprintf("%v", test.sendBody)
 		data[authMethod] = fmt.Sprintf("%v", test.method)
-		data[authHeaders] = fmt.Sprintf("%v", test.proxyHeaders)
+		data[authProxyHeaders] = fmt.Sprintf("%v", test.proxyHeaders)
 
 		u, err := ParseAnnotations(ing)
 
